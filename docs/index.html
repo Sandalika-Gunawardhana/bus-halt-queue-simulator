@@ -1,181 +1,105 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>[Project Title]: Interactive Demo</title>
-<!--
-  STARTER TEMPLATE. The example simulation below is a Monte Carlo estimate of pi.
-  It is here only to show the required structure:
-    - at least three adjustable parameters
-    - Start / Pause / Reset
-    - a live visualisation
-    - at least one quantitative output, checked against a reference value
-    - an "About / How to use" panel
-  Replace the SIMULATION section and the controls with your own model.
--->
-<style>
-  :root { --ink:#1b2430; --muted:#5d6876; --line:#d8dee6; --accent:#1f6f8b; --bg:#f6f8fa; --ok:#1a7f37; --warn:#b35900; }
-  * { box-sizing: border-box; }
-  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--ink); background:var(--bg); }
-  header { padding:16px 20px; background:#fff; border-bottom:1px solid var(--line); }
-  header h1 { margin:0; font-size:1.3rem; }
-  header p { margin:4px 0 0; color:var(--muted); font-size:.95rem; }
-  main { display:grid; grid-template-columns: 300px 1fr; gap:16px; padding:16px 20px; max-width:1200px; margin:0 auto; }
-  @media (max-width: 800px) { main { grid-template-columns: 1fr; } }
-  .panel { background:#fff; border:1px solid var(--line); border-radius:8px; padding:14px; }
-  label { display:block; font-size:.9rem; margin:12px 0 4px; }
-  label span { float:right; font-variant-numeric: tabular-nums; color:var(--muted); }
-  input[type=range] { width:100%; }
-  input[type=number] { width:100%; padding:6px; border:1px solid var(--line); border-radius:4px; }
-  .buttons { display:flex; gap:8px; margin-top:16px; }
-  button { flex:1; padding:8px; border:1px solid var(--accent); background:var(--accent); color:#fff; border-radius:6px; font-size:.95rem; cursor:pointer; }
-  button.secondary { background:#fff; color:var(--accent); }
-  canvas { width:100%; max-width:560px; aspect-ratio:1; display:block; margin:0 auto; background:#fff; border:1px solid var(--line); }
-  .stats { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap:10px; margin-top:14px; }
-  .stat { border:1px solid var(--line); border-radius:6px; padding:10px; }
-  .stat .k { font-size:.8rem; color:var(--muted); }
-  .stat .v { font-size:1.2rem; font-variant-numeric: tabular-nums; }
-  .check.ok { color:var(--ok); } .check.warn { color:var(--warn); }
-  details { margin-top:16px; }
-  summary { cursor:pointer; font-weight:600; }
-  details p, details li { font-size:.92rem; line-height:1.45; }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore how bus demand and boarding capacity affect queueing at a bus halt.">
+  <title>Bus Halt Queue Simulator</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
 </head>
 <body>
-<header>
-  <h1>[Project Title]</h1>
-  <p>[One-sentence description of what the simulation shows.]</p>
-</header>
-
-<main>
-  <section class="panel" aria-label="Controls">
-    <!-- REPLACE: your own parameters (at least three) -->
-    <label for="nTotal">Total samples <span id="nTotalVal"></span></label>
-    <input id="nTotal" type="range" min="1000" max="200000" step="1000" value="50000">
-
-    <label for="speed">Samples per frame (speed) <span id="speedVal"></span></label>
-    <input id="speed" type="range" min="10" max="5000" step="10" value="200">
-
-    <label for="seed">Random seed</label>
-    <input id="seed" type="number" value="42" min="1" step="1">
-
-    <div class="buttons">
-      <button id="startBtn">Start</button>
-      <button id="resetBtn" class="secondary">Reset</button>
+  <header class="site-head"><div class="shell head-inner">
+    <a class="brand" href="#top"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="3" width="14" height="16" rx="3"/><path d="M5 12h14M8 19v2m8-2v2M8 15h2m4 0h2"/></svg></span> Transit Lab</a>
+    <nav aria-label="Page sections"><a href="#simulation">Simulator</a><a href="#verification">Verification</a><a href="#guide">How to use</a></nav>
+  </div></header>
+  <main class="shell" id="top">
+    <header class="intro"><p class="eyebrow">WARAPITIYA · ROUTE 654</p>
+      <h1>Bus Halt Queue Simulator</h1>
+      <p>Explore how demand and boarding capacity shape bus waiting times.</p>
+    </header>
+    <div class="workspace" id="simulation">
+      <section class="panel controls" aria-labelledby="controls-heading">
+        <div class="panel-title"><h2 id="controls-heading">Parameters</h2></div>
+        <div class="control-fields">
+          <label for="preset">Scenario preset</label>
+          <select id="preset"><option value="baseline">Observed baseline</option><option value="high1">High demand · one bay</option><option value="high2">High demand · two bays</option><option value="high3">High demand · three bays</option><option value="overload">Overloaded · one bay</option><option value="custom" disabled>Custom settings</option></select>
+          <div class="fields-pair">
+            <div><label for="demand">Demand multiplier</label><select id="demand"><option value="1">1×</option><option value="4">4×</option><option value="10">10×</option><option value="20">20×</option><option value="28">28×</option><option value="35">35×</option></select></div>
+            <div><label for="bays">Boarding bays</label><select id="bays"><option>1</option><option>2</option><option>3</option></select></div>
+          </div>
+          <label for="duration">Mean service time (s)</label><input id="duration" type="number" min="1" max="600" step="any" required>
+          <label for="distribution">Service distribution</label><select id="distribution"><option value="exponential">Exponential</option><option value="lognormal">Lognormal</option></select>
+          <label for="seed">Random seed</label><input id="seed" type="number" min="0" max="4294967295" step="1" required value="42">
+          <div class="fields-pair">
+            <div><label for="mode">Playback mode</label><select id="mode"><option value="visual">Visual</option><option value="fast">Fast simulation</option></select></div>
+            <div><label for="speed">Playback speed</label><select id="speed" aria-describedby="speed-help"></select></div>
+          </div>
+          <p id="speed-help" class="hint speed-help"></p>
+        </div>
+        <div class="buttons"><button type="button" id="start" class="primary">Start</button><button type="button" id="reset">Reset</button></div>
+        <p id="run-message" class="hint" role="status">Model changes reset the run. Speed can change at any time.</p>
+      </section>
+      <section class="panel live" aria-labelledby="live-heading">
+        <div class="panel-title"><h2 id="live-heading">Live bus halt</h2><span id="run-state" class="run-state" data-state="ready"><i></i> Ready</span></div>
+        <div class="scene"><canvas id="halt" aria-label="Bus halt schematic showing the waiting queue, boarding bays and the most recent arrivals and departures"></canvas></div>
+        <div class="scene-foot"><span><i class="key waiting"></i> Waiting</span><span><i class="key busy"></i> In service</span><span><i class="key available"></i> Available</span><span id="overflow" class="overflow"></span></div>
+        <p class="hint scene-note">Latest arrival and departure labels are event history. Bay status and counters update at the event time, while buses finish moving on screen.</p>
+        <div class="theory" aria-label="Analytical comparison">
+          <div><span>Arrival rate</span><strong id="arrival-rate">—</strong></div>
+          <div><span id="load-label">Theoretical utilisation</span><strong id="offered-load">—</strong></div>
+          <div><span>M/M/c steady-state wait</span><strong id="theory-wait">—</strong></div>
+        </div>
+        <p class="model-note" id="model-note"></p>
+      </section>
     </div>
 
-    <details>
-      <summary>About / How to use</summary>
-      <!-- REPLACE: explain your model, its parameters and how to read the outputs -->
-      <p>This example estimates &pi; by sampling random points in a unit square and counting the fraction that falls inside the quarter circle: &pi; &asymp; 4 &times; (inside / total).</p>
-      <ul>
-        <li>Set the parameters, then press <b>Start</b>. <b>Pause</b> stops the run; <b>Reset</b> clears it and applies new settings.</li>
-        <li>The estimate is shown with a 95% confidence interval. The error should shrink roughly as 1/&radic;N.</li>
-        <li>The check compares the estimate with the reference value; the notebook gives the same result for the default settings.</li>
-      </ul>
-    </details>
-  </section>
+    <section class="measurements" aria-labelledby="metrics-heading">
+      <div class="section-title"><h2 id="metrics-heading">Live measurements</h2><a href="#measurement-guide">Metric definitions</a></div>
+      <dl class="metrics">
+        <div><dt>Elapsed time</dt><dd id="elapsed">—</dd></div><div><dt>Current queue</dt><dd id="queued">—</dd></div>
+        <div><dt>Buses in service</dt><dd id="in-service">—</dd></div><div><dt>Total arrivals</dt><dd id="arrivals">—</dd></div>
+        <div><dt>Completed services</dt><dd id="completed">—</dd></div><div><dt>Mean queue wait</dt><dd id="mean-wait">—</dd></div>
+        <div><dt>Mean system time</dt><dd id="mean-system">—</dd></div><div><dt>Average queue</dt><dd id="average-queue">—</dd></div>
+        <div><dt>Bay utilisation</dt><dd id="utilisation">—</dd></div><div><dt>Throughput</dt><dd id="throughput">—</dd></div>
+        <div><dt>Probability of waiting</dt><dd id="wait-probability">—</dd></div>
+      </dl>
+      <div class="chart-grid">
+        <figure class="panel chart"><figcaption>Queue length <span>Buses waiting</span></figcaption><canvas id="queue-chart" aria-label="Recent queue lengths in buses against simulated hours"></canvas></figure>
+        <figure class="panel chart"><figcaption>Cumulative mean wait <span>Seconds per completed bus</span></figcaption><canvas id="wait-chart" aria-label="Recent samples of cumulative mean wait against simulated hours"></canvas></figure>
+      </div>
+      <p class="hint chart-note">Charts show the last 240 samples at two simulated minutes per sample.</p>
+    </section>
 
-  <section class="panel" aria-label="Simulation">
-    <canvas id="view" width="560" height="560" aria-label="Live visualisation"></canvas>
-    <div class="stats">
-      <div class="stat"><div class="k">Samples so far</div><div class="v" id="outN">0</div></div>
-      <div class="stat"><div class="k">Estimate &plusmn; 95% CI</div><div class="v" id="outEst">–</div></div>
-      <div class="stat"><div class="k">Reference value</div><div class="v" id="outRef">3.14159</div></div>
-      <div class="stat"><div class="k">Check</div><div class="v check" id="outCheck">–</div></div>
-    </div>
-  </section>
-</main>
+    <section class="panel verification" id="verification" aria-labelledby="verification-heading">
+      <div class="section-title"><h2 id="verification-heading">Numerical verification</h2><button type="button" id="verify" class="primary">Run Verification</button></div>
+      <p>Compare the browser’s mean queue wait with the notebook at 10× demand, one bay and exponential service.</p>
+      <div class="table-scroll"><table>
+        <thead><tr><th scope="col">Comparison</th><th scope="col">Browser (s)</th><th scope="col">Notebook (s)</th><th scope="col">Absolute error (s)</th><th scope="col">Tolerance (s)</th><th scope="col">Result</th></tr></thead>
+        <tbody><tr><th scope="row">Analytical formula</th><td id="a-value">—</td><td>28.744379</td><td id="a-error">—</td><td>0.00000001</td><td id="a-status">—</td></tr>
+        <tr><th scope="row">30-replication benchmark</th><td id="b-value">—</td><td>28.525311</td><td id="b-error">—</td><td id="b-tolerance">—</td><td id="b-status">—</td></tr></tbody>
+      </table></div>
+      <p class="hint">The benchmark runs 30 independent 1,000-hour replications with a 100-hour warm-up. It drains buses that arrived before cutoff. JavaScript and Python use different random streams. The tolerance is three combined standard errors, estimated from the notebook’s 95% interval and assuming comparable replication variance.</p>
+      <p id="verify-message" role="status" class="verify-message"></p><ul id="checks" class="checks" aria-label="Simulation checks"></ul>
+    </section>
 
-<script>
-// ---------- seeded random number generator (reproducible runs) ----------
-function mulberry32(a) {
-  return function () {
-    a |= 0; a = a + 0x6D2B79F5 | 0;
-    let t = Math.imul(a ^ a >>> 15, 1 | a);
-    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-    return ((t ^ t >>> 14) >>> 0) / 4294967296;
-  };
-}
-
-// ---------- SIMULATION (REPLACE with your own model) ----------
-const REFERENCE = Math.PI;          // analytic / notebook reference value
-const sim = { rng: null, n: 0, inside: 0, nTotal: 0 };
-
-function initSim(params) {
-  sim.rng = mulberry32(params.seed);
-  sim.n = 0; sim.inside = 0; sim.nTotal = params.nTotal;
-}
-
-function stepSim(k, draw) {                 // advance the model by k samples
-  for (let i = 0; i < k && sim.n < sim.nTotal; i++) {
-    const x = sim.rng(), y = sim.rng();
-    const hit = x * x + y * y <= 1;
-    sim.n++; if (hit) sim.inside++;
-    draw(x, y, hit);
-  }
-}
-
-function estimate() {                       // quantitative output with uncertainty
-  if (sim.n === 0) return null;
-  const p = sim.inside / sim.n;
-  const est = 4 * p;
-  const se = 4 * Math.sqrt(p * (1 - p) / sim.n);
-  return { est, ci: 1.96 * se };
-}
-
-// ---------- UI wiring (keep the pattern, adapt the details) ----------
-const $ = (id) => document.getElementById(id);
-const ctx = $("view").getContext("2d");
-let running = false, frame = null;
-
-function params() {
-  return { nTotal: +$("nTotal").value, speed: +$("speed").value, seed: Math.max(1, Math.floor(+$("seed").value) || 1) };
-}
-function showParams() {
-  $("nTotalVal").textContent = (+$("nTotal").value).toLocaleString();
-  $("speedVal").textContent = (+$("speed").value).toLocaleString();
-}
-function clearView() {
-  const w = ctx.canvas.width;
-  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, w);
-  ctx.strokeStyle = "#1b2430"; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.arc(0, w, w, -Math.PI / 2, 0); ctx.stroke();
-}
-function drawPoint(x, y, hit) {
-  const w = ctx.canvas.width;
-  ctx.fillStyle = hit ? "rgba(31,111,139,0.55)" : "rgba(179,89,0,0.55)";
-  ctx.fillRect(x * w, (1 - y) * w, 1.5, 1.5);
-}
-function showOutputs() {
-  $("outN").textContent = sim.n.toLocaleString();
-  const e = estimate();
-  if (!e) { $("outEst").textContent = "–"; $("outCheck").textContent = "–"; $("outCheck").className = "v check"; return; }
-  $("outEst").textContent = `${e.est.toFixed(4)} ± ${e.ci.toFixed(4)}`;
-  const ok = Math.abs(e.est - REFERENCE) <= e.ci;
-  $("outCheck").textContent = ok ? "Within CI" : "Outside CI";
-  $("outCheck").className = "v check " + (ok ? "ok" : "warn");
-}
-function loop() {
-  stepSim(params().speed, drawPoint);
-  showOutputs();
-  if (sim.n >= sim.nTotal) { stop(); $("startBtn").textContent = "Done"; $("startBtn").disabled = true; return; }
-  frame = requestAnimationFrame(loop);
-}
-function start() { running = true; $("startBtn").textContent = "Pause"; frame = requestAnimationFrame(loop); }
-function stop() { running = false; if (frame) cancelAnimationFrame(frame); $("startBtn").textContent = "Start"; }
-function reset() {
-  stop(); initSim(params()); clearView(); showOutputs();
-  $("startBtn").disabled = false; $("startBtn").textContent = "Start";
-}
-
-$("startBtn").addEventListener("click", () => (running ? stop() : start()));
-$("resetBtn").addEventListener("click", reset);
-["nTotal", "speed"].forEach((id) => $(id).addEventListener("input", showParams));
-["nTotal", "seed"].forEach((id) => $(id).addEventListener("change", reset));
-$("outRef").textContent = REFERENCE.toFixed(5);
-showParams(); reset();
-</script>
+    <section class="guide" id="guide" aria-labelledby="guide-heading">
+      <h2 id="guide-heading">About &amp; how to use</h2>
+      <details open><summary>What does the model investigate?</summary>
+        <p>When every boarding bay is busy, arriving buses form a queue. This model asks how much an extra bay can reduce bus waiting as demand rises. The baseline uses positive weekday morning dwell observations from Warapitiya on Route 654, between Kandy and Digana. Higher demand multipliers are hypothetical stress tests.</p></details>
+      <details><summary>Set up and compare runs</summary>
+        <p>Choose a preset or set the demand multiplier, bay count, mean service duration, distribution and seed. Start begins a run. Pause freezes simulated time and movement, Resume continues the same run, and Reset clears it. Model and seed changes reset the run.</p>
+        <p>Use Visual mode to follow individual buses or Fast simulation to cover more simulated hours. At 60×, one real second advances one simulated minute. You can switch modes and speeds during a run. A teal bar inside an occupied bay shows service progress in simulated time.</p>
+        <p>Try the high-demand one-bay preset, then the two-bay preset. Compare waiting and utilisation at similar simulated times. Keeping the seed fixed keeps the arrival sequence the same.</p></details>
+      <details id="measurement-guide"><summary>How to read the measurements</summary>
+        <p>Queue length excludes buses in service. Mean queue wait is the time from arrival to service start for completed buses. Mean system time adds time in service. Probability of waiting is the fraction of completed buses that waited. The live run starts empty and includes its initial transient.</p>
+        <p>Average queue length is the time-weighted number waiting. Bay utilisation is occupied bay-time divided by available bay-time. Throughput is completed buses per simulated hour. These are bus-level measures.</p></details>
+      <details><summary>Assumptions, equations and data</summary>
+        <p>Arrivals are Poisson at a constant rate λ. A shared first-come, first-served queue feeds identical bays, with no queue limit or abandonment. Service is independent of arrivals. Exponential service has mean m seconds. The lognormal option uses log-scale mean ln(m) − σ²/2 with σ = 0.7759553844290873, giving the same arithmetic mean.</p>
+        <p>Offered load is ρ = λ/(cμ), where μ = 3600/m buses per hour per bay and c is the bay count. For exponential service and ρ &lt; 1, Erlang C gives the waiting probability; the mean steady-state queue wait is that probability divided by cμ − λ. GPS dwell time is a service proxy. Real queues can have varying arrival rates, bay interference and road spillback.</p>
+        <p>Source: Shiveswarran R, <a href="https://www.kaggle.com/datasets/shiveswarranr/bus-travel-time-data">Bus travel time data</a>, version 2. Data files are copyrighted by their original authors. Calibration and reference results come from the project notebook and its experimental exports.</p></details>
+    </section>
+  </main>
+  <footer class="shell footer">Bus Halt Queue Simulator</footer>
 </body>
 </html>
