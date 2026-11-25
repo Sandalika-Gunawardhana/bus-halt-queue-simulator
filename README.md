@@ -2,7 +2,7 @@
 
 A reproducible queueing study and offline browser simulator for exploring how additional boarding bays affect bus waiting under different demand levels.
 
-**[Planned GitHub Pages demo](https://sandalika-gunawardhana.github.io/bus-halt-queue-simulator/)** · Deployment pending.
+**[Live demo on GitHub Pages](https://sandalika-gunawardhana.github.io/bus-halt-queue-simulator/)**
 
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Sandalika-Gunawardhana/bus-halt-queue-simulator/blob/main/notebook/bus-halt-queue-simulator.ipynb)
 
@@ -17,7 +17,7 @@ How does increasing capacity from one bay to two or three change average bus wai
 ## Quick start
 
 - **Notebook:** Open the Colab badge and choose **Runtime → Run all**. The [notebook](notebook/bus-halt-queue-simulator.ipynb) installs its additional dependencies, downloads dataset version 2 through KaggleHub, and verifies the original SHA-256 checksums of all three inputs before reading them. A fresh Colab CPU run was observed at approximately one minute. Timing depends on the runtime and download.
-- **Browser demo:** Download or clone the full repository, then double-click `docs/index.html`. Keep the HTML, CSS and JavaScript files together. The local demo runs offline without a backend, build step or package installation. The hosted link above is for use after deployment.
+- **Browser demo:** Open the live demo above, or download or clone the full repository and double-click `docs/index.html`. Keep the HTML, CSS and JavaScript files together. The local demo runs offline without a backend, build step or package installation.
 
 ## Using the demo
 

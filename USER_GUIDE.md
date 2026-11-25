@@ -2,7 +2,7 @@
 
 ## Open the demo
 
-Download or clone the repository and double-click `docs/index.html`. Keep [the HTML file](docs/index.html), stylesheet and script together in `docs/`. The simulation runs offline in your browser without installation or a server. After deployment, the same page will be available at the [planned GitHub Pages address](https://sandalika-gunawardhana.github.io/bus-halt-queue-simulator/). Hosting is pending.
+Open the [live demo on GitHub Pages](https://sandalika-gunawardhana.github.io/bus-halt-queue-simulator/). For offline use, download or clone the repository and double-click `docs/index.html`. Keep [the HTML file](docs/index.html), stylesheet and script together in `docs/`. The simulation runs offline in your browser without installation or a server.
 
 ![Dashboard with one occupied bay, an amber bus queue and live measurements](figures/demo/01-main-dashboard-queue.png)
 
