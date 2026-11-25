@@ -1,0 +1,49 @@
+# Operating-system metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Python, Jupyter and local environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+
+# Temporary files and caches
+*.tmp
+*.swp
+*.bak
+*~
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+.kaggle/
+kaggle.json
+credentials.json
+*.key
+*.pem
+
+# Raw Route 654 data and generated experiment outputs
+/Dataset/
+/data/raw/
+/data/**/*.csv
+bus_*_654.csv
+archive.zip
+/results/
+experimental_results.zip
+experimental_figures.zip
+
+# Private backups and AI-use records
+/backups/
+/private/
+*backup*.zip
+phase-*-reference.zip
+*_AI_Use/
